@@ -12,6 +12,7 @@ sudo chmod +x /usr/bin/fastgpu
 
 # Usage
 Before any program launch or in steam, prepend fastgpu to use your faster graphics accelerator.  
+If your faster GPU is unavailable (as a gpu pass through for example) it will use your primary GPU instead.
 If environment variables are needed prior to the launch, the script has some magic to export them out, but requires that you wrap it in quotes.  
 Example:
 ```shell
