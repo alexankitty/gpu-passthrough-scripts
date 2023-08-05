@@ -1,0 +1,28 @@
+#!/bin/bash
+MODULE="nvidia" #Module we're checking against to determine if an accelerator is available.
+GPUAVAIL="$(grep -e "^$MODULE " /proc/modules)"
+if [[ "$1" == *"="* ]];
+    then
+        for var in "$@"; do
+            if [[ "$var" == "$1" ]]; then
+                IFS=$'\n' ENVVARS=( $(xargs -n1 <<< $1) )
+                #parse out the first var as args
+            else
+                new_args+=($var)
+                #yeet the environment variables
+            fi
+        done
+        for key in ${ENVVARS[@]}
+        do
+            #export the environment variables
+            export $key
+        done
+    fi
+
+if test -n "$GPUAVAIL"
+    then
+        #Export nvidia requirements
+        export DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
+    fi
+#run the program
+"${new_args[@]}"
