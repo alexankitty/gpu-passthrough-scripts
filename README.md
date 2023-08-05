@@ -15,7 +15,7 @@ Before any program launch or in steam, prepend fastgpu to use your faster graphi
 If environment variables are needed prior to the launch, the script has some magic to export them out, but requires that you wrap it in quotes.  
 Example:
 ```shell
-fastgpu-steam 'WINEDLLOVERRIDES="dinput8,dll=n,b"' %command%
+fastgpu 'WINEDLLOVERRIDES="dinput8,dll=n,b"' %command%
 ```
 If you're not using steam, then you'll just replace %command% with your actual command.
 
