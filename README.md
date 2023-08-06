@@ -9,7 +9,8 @@ cd fastgpu
 sudo cp fastgpu /usr/bin
 sudo chmod +x /usr/bin/fastgpu
 ```
-If you intend to also use your GPU for a gaming VM, be sure to follow [this wiki page](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Isolating_the_GPU) on how to statically bind your GPU to VFIO.
+If you intend to also use your GPU for a gaming VM, be sure to follow [this wiki page](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Isolating_the_GPU) on how to statically bind your GPU to VFIO.  
+If you need to hook your VM as well, a hooks installer script is included. Be sure to alter the scripts as needed. Change line 6 of hooks/qemu to the name of your VM from win11.
 
 # Usage
 Before any program launch or in steam, prepend fastgpu to use your faster graphics accelerator.  
