@@ -33,3 +33,17 @@ To:
 ```shell
 export DRI_PRIME=pci-0000_06_00_0
 ```
+
+#GPU Swapping from vfio to nvidia
+Install like so.
+```shell
+sudo cp swapgpu /usr/bin
+sudo chmod +x /usr/bin/swapgpu
+```
+
+Change the following to match your setup.
+```shell
+gpu_id="0000:01:00.0"
+gpu_audio_id="0000:01:00.1"
+```
+If you're on AMD I recommend looking through [this reddit post](https://www.reddit.com/r/VFIO/comments/gxyvtg/comment/ft965p6/) for actually adjusting the script for AMD. 
