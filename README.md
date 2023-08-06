@@ -9,6 +9,7 @@ cd fastgpu
 sudo cp fastgpu /usr/bin
 sudo chmod +x /usr/bin/fastgpu
 ```
+If you intend to also use your GPU for a gaming VM, be sure to follow [this wiki page](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Isolating_the_GPU) on how to statically bind your GPU to VFIO.
 
 # Usage
 Before any program launch or in steam, prepend fastgpu to use your faster graphics accelerator.  
