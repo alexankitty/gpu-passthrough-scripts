@@ -1,5 +1,5 @@
-# fastgpu
-Runs a program using your fast GPU as an offloader.
+# gpu-passthrough-scripts
+Contains a script for rebinding your GPU, and for deterministically running applications on your faster GPU. 
 
 # Installation
 Clone this repo, and cd and copy to /usr/bin
