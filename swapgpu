@@ -14,7 +14,7 @@ swap_to_nvidia() {
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/bind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
 
-    nvidia-smi -i 1 -pm 1
+    nvidia-smi -i 0 -pm 1
 }
 
 swap_to_vfio-pci() {
