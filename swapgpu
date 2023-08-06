@@ -13,11 +13,13 @@ swap_to_nvidia() {
 
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/bind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
-
+    systemctl start nvidia-persistenced
     nvidia-smi -i 0 -pm 1
 }
 
 swap_to_vfio-pci() {
+    nvidia-smi -i 0 -pm 0
+    systemctl stop nvidia-persistenced
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
 
