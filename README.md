@@ -25,6 +25,7 @@ The assumption here is that you're using Nvidia under wayland as a prime offload
 Further details on how to achieve other configs can be found at [this archwiki page](https://wiki.archlinux.org/title/PRIME).    
 A brief run down of changes that need to be made:  
 On line 2, you need to change the module you're checking on from nvidia to amdgpu if AMD is your offloader (no guarantee how well this will work).  
+On line 3, you will need to put in the IOMMU PCI ID of your GPU. You can grab that using [this script](https://gist.github.com/r15ch13/ba2d738985fce8990a4e9f32d07c6ada).  
 On line 25 you will want to change the following:  
 ```shell
 export DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
