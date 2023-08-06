@@ -1,6 +1,7 @@
 #!/bin/bash
-MODULE="nvidia" #Module we're checking against to determine if an accelerator is available.
-GPUAVAIL="$(grep -e "^$MODULE " /proc/modules)"
+module="nvidia" #Module we're checking against to determine if an accelerator is available.
+gpu_id="0000:01:00.0"
+basepath="/sys/bus/pci/drivers"
 if [[ "$1" == *"="* ]];
     then
         for var in "$@"; do
@@ -17,12 +18,17 @@ if [[ "$1" == *"="* ]];
             #export the environment variables
             export $key
         done
-    fi
+    else
+        new_args=$@
+fi
 
-if test -n "$GPUAVAIL"
+if [ -d "$basepath/$module/$gpu_id" ]
     then
+        printf "Faster GPU is available, setting environment variables to use it.\n"
         #Export nvidia requirements
         export DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
-    fi
+    else
+        printf "Faster GPU is not available. Check if you're passing it through to your VM or if you remembered to use the GPU swap script.\n"
+fi
 #run the program
 "${new_args[@]}"
