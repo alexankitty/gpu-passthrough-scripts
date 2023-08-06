@@ -1,0 +1,11 @@
+[Unit]
+Description=GPU Startup.
+After=sddm.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/startgpu
+
+[Install]
+WantedBy=multi-user.target
