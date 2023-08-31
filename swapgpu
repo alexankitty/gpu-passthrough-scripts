@@ -1,19 +1,22 @@
 #!/bin/bash
 
 # This script is provided without a license from https://www.reddit.com/r/VFIO/comments/gxyvtg/comment/ft965p6/ created by u/muppiz, it is included in this repo for completeness of the gpu swap workflow.
-
-gpu_id="0000:01:00.0"
-gpu_audio_id="0000:01:00.1"
+MODULE="nvidia-drm"
+gpu_id="0000:04:00.0"
+gpu_audio_id="0000:0:00.1"
 
 basepath="/sys/bus/pci/drivers"
 
 swap_to_nvidia() {
-    sleep 10
+    sleep 3
     echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/unbind
 
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/bind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
+    if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
+      modprobe nvidia-drm
+    fi
     systemctl start nvidia-persistenced
     nvidia-smi -i 0 -pm 1
 }
@@ -21,7 +24,12 @@ swap_to_nvidia() {
 swap_to_vfio-pci() {
     nvidia-smi -i 0 -pm 0
     systemctl stop nvidia-persistenced
-    sleep 10
+    sleep 3
+    fuser -k /dev/nvidia0
+    ## Do it three times just to ensure the module gets unloaded. PS: I'm too lazy to figure out the right order to unload.
+    rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
+    rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
+    rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
 
