@@ -44,6 +44,7 @@ export DRI_PRIME=pci-0000_06_00_0
 ```
 
 # GPU Swapping from vfio to nvidia
+Run this from TTY for best results!
 ## Install
 ```shell
 sudo cp swapgpu /usr/bin
