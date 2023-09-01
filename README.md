@@ -22,6 +22,12 @@ fastgpu 'WINEDLLOVERRIDES="dinput8,dll=n,b"' %command%
 ```
 If you're not using steam, then you'll just replace %command% with your actual command.
 
+# Important Note
+Your compositor under wayland needs to support dynamic compositing to whichever is determined to be the primary/output/active GPU. See [this issue](https://invent.kde.org/plasma/kwin/-/issues/46) for kwin's implementation/progress. Otherwise you will need to close any programs that have touched the GPU since attaching it. Check output of the following command.
+```shell
+fuser -v /dev/nvidia0
+```
+
 # Alterations
 The assumption here is that you're using Nvidia under wayland as a prime offload GPU.  
 Further details on how to achieve other configs can be found at [this archwiki page](https://wiki.archlinux.org/title/PRIME).    

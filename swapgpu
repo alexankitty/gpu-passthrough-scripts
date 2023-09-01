@@ -25,11 +25,14 @@ swap_to_vfio-pci() {
     nvidia-smi -i 0 -pm 0
     systemctl stop nvidia-persistenced
     sleep 3
+<<<<<<< HEAD
     fuser -k /dev/nvidia0
     ## Do it three times just to ensure the module gets unloaded. PS: I'm too lazy to figure out the right order to unload.
     rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
     rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
     rmmod nvidia nvidia_uvm nvidia_modeset nvidia_drm
+=======
+>>>>>>> 0c5791a2465a273de7d8dd5ef817dd4eb4893a13
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
 
