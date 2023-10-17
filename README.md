@@ -28,6 +28,14 @@ Your compositor under wayland needs to support dynamic compositing to whichever 
 fuser -v /dev/nvidia0
 ```
 
+# Slow Application Loading
+Certain applications by default will try to use the nvidia gpu first prior to whichever is the mesa GPU. Run these to fix it.
+```shell
+sudo mv /usr/share/glvnd/egl_vendor.d/50_mesa.json /usr/share/glvnd/egl_vendor.d/10_mesa.json
+sudo mv /usr/share/glvnd/egl_vendor.d/10_nvidia.json /usr/share/glvnd/egl_vendor.d/50_nvidia.json
+```
+This should alleviate the problem of applications using the wrong gpu and make it easier to unbind.
+
 # Alterations
 The assumption here is that you're using Nvidia under wayland as a prime offload GPU.  
 Further details on how to achieve other configs can be found at [this archwiki page](https://wiki.archlinux.org/title/PRIME).    
