@@ -2,8 +2,8 @@
 
 # This script is provided without a license from https://www.reddit.com/r/VFIO/comments/gxyvtg/comment/ft965p6/ created by u/muppiz, it is included in this repo for completeness of the gpu swap workflow.
 MODULE="nvidia-drm"
-gpu_id="0000:04:00.0"
-gpu_audio_id="0000:0:00.1"
+gpu_id="0000:00:00.0"
+gpu_audio_id="0000:00:00.1"
 
 basepath="/sys/bus/pci/drivers"
 
@@ -25,7 +25,6 @@ swap_to_vfio-pci() {
     nvidia-smi -i 0 -pm 0
     systemctl stop nvidia-persistenced
     sleep 3
-    fuser -k /dev/nvidia0
     rmmod -f nvidia nvidia_uvm nvidia_modeset nvidia_drm
     echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
