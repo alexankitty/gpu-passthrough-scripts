@@ -26,7 +26,7 @@ if [ -d "$basepath/$module/$gpu_id" ]
     then
         printf "Faster GPU is available, setting environment variables to use it.\n"
         #Export nvidia requirements
-        export DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export DRI_PRIME=$gpu_id __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
     else
         printf "Faster GPU is not available. Check if you're passing it through to your VM or if you remembered to use the GPU swap script.\n"
 fi
