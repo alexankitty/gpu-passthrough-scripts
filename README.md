@@ -58,7 +58,8 @@ export DRI_PRIME=pci-0000_06_00_0
 ```
 
 # GPU Swapping from vfio to nvidia
-Run this from TTY for best results!
+Recommend using [supergfxctl](https://gitlab.com/asus-linux/supergfxctl) as it's just a much better implementation and has guis for kde and gnome.
+Run swapgpu from TTY for best results!
 ## Install
 ```shell
 sudo cp swapgpu /usr/bin
