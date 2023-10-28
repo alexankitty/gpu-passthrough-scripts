@@ -35,6 +35,12 @@ sudo mv /usr/share/glvnd/egl_vendor.d/50_mesa.json /usr/share/glvnd/egl_vendor.d
 sudo mv /usr/share/glvnd/egl_vendor.d/10_nvidia.json /usr/share/glvnd/egl_vendor.d/50_nvidia.json
 ```
 This should alleviate the problem of applications using the wrong gpu and make it easier to unbind.
+Also set the following ENV Vars
+```shell
+export DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1
+export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.i686.json:/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
+```
+Adjust as needed for your integrated/primary GPU.
 
 # Alterations
 The assumption here is that you're using Nvidia under wayland as a prime offload GPU.  
