@@ -2,6 +2,7 @@
 
 # This script is provided without a license from https://www.reddit.com/r/VFIO/comments/gxyvtg/comment/ft965p6/ created by u/muppiz, it is included in this repo for completeness of the gpu swap workflow.
 MODULE="nvidia-drm"
+modules="nvidia_drm nvidia_modeset nvidia_uvm nvidia"
 gpu_id="0000:00:00.0"
 gpu_audio_id="0000:00:00.1"
 
@@ -12,10 +13,9 @@ swap_to_nvidia() {
     echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/unbind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/unbind
 
-    echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/bind
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
     if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
-      modprobe nvidia-drm
+      modprobe $MODULE
     fi
     systemctl start nvidia-persistenced
     nvidia-smi -i 0 -pm 1
@@ -25,8 +25,13 @@ swap_to_vfio-pci() {
     nvidia-smi -i 0 -pm 0
     systemctl stop nvidia-persistenced
     sleep 3
-    rmmod -f nvidia nvidia_uvm nvidia_modeset nvidia_drm
-    echo -n "$gpu_id" > /sys/bus/pci/drivers/nvidia/unbind
+    rmmod $modules
+    if [ $? -eq 0 ]; then
+        echo Unloaded nvidia modules.
+    else
+        echo fd is still present, please disconnect the display from your nvidia gpu and try again.
+        exit 1
+    fi
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
 
     echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/bind
