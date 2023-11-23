@@ -29,10 +29,10 @@ fuser -v /dev/nvidia0
 ```
 
 # Slow Application Loading
-Certain applications by default will try to use the nvidia gpu first prior to whichever is the mesa GPU. Run these to fix it.
+Certain applications by default will try to use the nvidia gpu first prior to whichever is the mesa GPU. You'll need to set some specific overrides to get those to work correctly in either an env var startup script, or /etc/environment
 ```shell
-sudo mv /usr/share/glvnd/egl_vendor.d/50_mesa.json /usr/share/glvnd/egl_vendor.d/10_mesa.json
-sudo mv /usr/share/glvnd/egl_vendor.d/10_nvidia.json /usr/share/glvnd/egl_vendor.d/50_nvidia.json
+__GLX_VENDOR_LIBRARY_NAME=amd
+__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
 ```
 This should alleviate the problem of applications using the wrong gpu and make it easier to unbind.
 Also set the following ENV Vars
