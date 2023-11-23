@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# This script is provided without a license from https://www.reddit.com/r/VFIO/comments/gxyvtg/comment/ft965p6/ created by u/muppiz, it is included in this repo for completeness of the gpu swap workflow.
+MODULE="nvidia_drm"
+modules="nvidia_drm nvidia_modeset nvidia_uvm nvidia"
+gpu_id="0000:04:00.0"
+gpu_audio_id="0000:04:00.1"
+
+basepath="/sys/bus/pci/drivers"
+
+swap_to_nvidia() {
+    sleep 3
+    echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/unbind
+    if [ $? -ne 0 ]; then
+      zenity --error \
+      --title="GPU Swap Failed" \
+      --text="GPU is in use by VFIO. Please make sure your vm is stopped and re-run this script."
+    fi
+    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/unbind
+
+    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
+    if ! lsmod | grep "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
+      modprobe $MODULE
+    fi
+    systemctl start nvidia-persistenced
+    nvidia-smi -i 0 -pm 1
+}
+
+swap_to_vfio-pci() {
+    nvidia-smi -i 0 -pm 0
+    systemctl stop nvidia-persistenced
+    sleep 3
+    tryagain=true
+    while $tryagain; do
+      rmmod $modules
+      if [ $? -eq 0 ]; then
+        tryagain=false
+        continue
+      fi
+      if ! lsmod | grep "$MODULE" >> /dev/null; then #Check if nvidia-drm is not loaded in case it gets auto unloaded.
+        tryagain=false
+        continue
+      fi
+      zenity --question \
+      --title="GPU Swap Failed" \
+      --text "Please disconnect your monitor from your nvidia GPU and try again." \
+      --ok-label="Try Again" \
+      --cancel-label="Cancel"
+      if [[ $? -eq 1 ]]; then
+        exit 1
+      fi
+    done
+
+    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
+
+    echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/bind
+    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/bind
+}
+
+is_driver_already_loaded() {
+    if [ -d "$basepath/$1/$gpu_id" ]
+    then
+        echo "$1 is already loaded for device $gpu_id"
+        exit 1
+    fi
+}
+
+case "$1" in
+  "nvidia")
+    is_driver_already_loaded "nvidia"
+    swap_to_nvidia
+    ;;
+  "vfio-pci")
+    is_driver_already_loaded "vfio-pci"
+    swap_to_vfio-pci
+    ;;
+  *)
+    echo "Please specify either nvidia or vfio-pci to swap to."
+    exit 1
+    ;;
+esac
