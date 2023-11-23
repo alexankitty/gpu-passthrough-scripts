@@ -1,6 +1,6 @@
 #!/bin/bash
 module="nvidia" #Module we're checking against to determine if an accelerator is available.
-gpu_id="0000:04:00.0"
+gpu_id="0000:00:00.0"
 basepath="/sys/bus/pci/drivers"
 if [[ "$1" == *"="* ]];
     then
