@@ -17,6 +17,8 @@ swap_to_nvidia() {
     if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
       modprobe $MODULE
     fi
+    setfacl -m "u:nvidia-persistenced:rw" /dev/nvidia*
+    setfacl -m "g:nvidia-persistenced:rw" /dev/nvidia*
     systemctl start nvidia-persistenced
     nvidia-smi -i 0 -pm 1
 }
