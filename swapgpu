@@ -17,7 +17,7 @@ swap_to_nvidia() {
     if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
       modprobe $MODULE
     fi
-    sleep 3
+    sleep 5
     setfacl -m "u:nvidia-persistenced:rw" /dev/nvidia*
     setfacl -m "g:nvidia-persistenced:rw" /dev/nvidia*
     systemctl start nvidia-persistenced
@@ -28,11 +28,18 @@ swap_to_vfio-pci() {
     nvidia-smi -i 0 -pm 0
     systemctl stop nvidia-persistenced
     sleep 3
-    rmmod $modules
+    stdbuf -oL rmmod $modules 2>&1 |
+      while IFS= read -r line
+      do
+        if [[ $line =~ "in use" ]]; then
+          echo $line
+          exit 1
+        fi
+      done
     if [ $? -eq 0 ]; then
         echo Unloaded nvidia modules.
     else
-        echo fd is still present, please disconnect the display from your nvidia gpu and try again.
+        echo fd is still present, please disconnect the display from your nvidia gpu and try again, and stop any applications currently using the GPU.
         exit 1
     fi
     echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
