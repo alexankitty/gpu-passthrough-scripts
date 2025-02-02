@@ -9,64 +9,63 @@ gpu_audio_id="0000:00:00.1"
 basepath="/sys/bus/pci/drivers"
 
 swap_to_nvidia() {
-    sleep 3
-    echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/unbind
-    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/unbind
+  sleep 3
+  echo -n "$gpu_id" >/sys/bus/pci/drivers/vfio-pci/unbind
+  echo -n "$gpu_audio_id" >/sys/bus/pci/drivers/vfio-pci/unbind
 
-    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/bind
-    if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
-      modprobe $MODULE
-    fi
-    sleep 5
-    setfacl -m "u:nvidia-persistenced:rw" /dev/nvidia*
-    setfacl -m "g:nvidia-persistenced:rw" /dev/nvidia*
-    systemctl start nvidia-persistenced
-    nvidia-smi -i 0 -pm 1
+  echo -n "$gpu_audio_id" >/sys/bus/pci/drivers/snd_hda_intel/bind
+  if ! lsmod | grep -wq "$MODULE"; then #Load nvidia-drm if it's not currently loaded. This helps performance and screen tearing.
+    modprobe $MODULE
+  fi
+  sleep 5
+  setfacl -m "u:nvidia-persistenced:rw" /dev/nvidia*
+  setfacl -m "g:nvidia-persistenced:rw" /dev/nvidia*
+  systemctl start nvidia-persistenced
+  nvidia-smi -i 0 -pm 1
 }
 
 swap_to_vfio-pci() {
-    nvidia-smi -i 0 -pm 0
-    systemctl stop nvidia-persistenced
-    sleep 3
-    stdbuf -oL rmmod $modules 2>&1 |
-      while IFS= read -r line
-      do
-        if [[ $line =~ "in use" ]]; then
-          echo $line
-          exit 1
-        fi
-      done
-    if [ $? -eq 0 ]; then
-        echo Unloaded nvidia modules.
-    else
-        echo fd is still present, please disconnect the display from your nvidia gpu and try again, and stop any applications currently using the GPU.
+  nvidia-smi -i 0 -pm 0
+  systemctl stop nvidia-persistenced
+  udevadm trigger --type=devices --action=remove --subsystem-match=drm --property-match="MINOR=1"
+  sleep 3
+  stdbuf -oL rmmod $modules 2>&1 |
+    while IFS= read -r line; do
+      if [[ $line =~ "in use" ]]; then
+        echo $line
         exit 1
-    fi
-    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/snd_hda_intel/unbind
+      fi
+    done
+  if [ $? -eq 0 ]; then
+    echo Unloaded nvidia modules.
+  else
+    echo fd is still present, please disconnect the display from your nvidia gpu and try again, and stop any applications currently using the GPU.
+    exit 1
+  fi
+  echo -n "$gpu_audio_id" >/sys/bus/pci/drivers/snd_hda_intel/unbind
 
-    echo -n "$gpu_id" > /sys/bus/pci/drivers/vfio-pci/bind
-    echo -n "$gpu_audio_id" > /sys/bus/pci/drivers/vfio-pci/bind
+  echo -n "$gpu_id" >/sys/bus/pci/drivers/vfio-pci/bind
+  echo -n "$gpu_audio_id" >/sys/bus/pci/drivers/vfio-pci/bind
 }
 
 is_driver_already_loaded() {
-    if [ -d "$basepath/$1/$gpu_id" ]
-    then
-        echo "$1 is already loaded for device $gpu_id"
-        exit 1
-    fi
+  if [ -d "$basepath/$1/$gpu_id" ]; then
+    echo "$1 is already loaded for device $gpu_id"
+    exit 1
+  fi
 }
 
 case "$1" in
-  "nvidia")
-    is_driver_already_loaded "nvidia"
-    swap_to_nvidia
-    ;;
-  "vfio-pci")
-    is_driver_already_loaded "vfio-pci"
-    swap_to_vfio-pci
-    ;;
-  *)
-    echo "Please specify either nvidia or vfio-pci to swap to."
-    exit 1
-    ;;
+"nvidia")
+  is_driver_already_loaded "nvidia"
+  swap_to_nvidia
+  ;;
+"vfio-pci")
+  is_driver_already_loaded "vfio-pci"
+  swap_to_vfio-pci
+  ;;
+*)
+  echo "Please specify either nvidia or vfio-pci to swap to."
+  exit 1
+  ;;
 esac
