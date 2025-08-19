@@ -30,6 +30,7 @@ lsof | grep nvidia
 ```  
   
 If you're on hyprland make sure you set AQ_DRM_DEVICES to whichever gpu (symlink) is your main GPU.  
+
 This script is set to resolve dri card symlinks, it won't work if you don't have the necessary udev rules. `set-gpu-symlink-udev-rules.sh` will add the necessary rules for you assuming you have an amd/nvidia setup, otherwise you will need to modify the script to match whatever you have.
 
 # Slow Application Loading
