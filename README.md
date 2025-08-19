@@ -15,10 +15,10 @@ If you need to hook your VM as well, a hooks installer script is included. Be su
 # Usage
 Before any program launch or in steam, prepend fastgpu to use your faster graphics accelerator.  
 If your faster GPU is unavailable (as a gpu pass through for example) it will use your primary GPU instead.
-If environment variables are needed prior to the launch, the script has some magic to export them out, but requires that you wrap it in quotes.  
+If environment variables are needed prior to the launch, the script uses `env` to handle those.
 Example:
 ```shell
-fastgpu 'WINEDLLOVERRIDES="dinput8,dll=n,b"' %command%
+fastgpu WINEDLLOVERRIDES="dinput8,dll=n,b" %command%
 ```
 If you're not using steam, then you'll just replace %command% with your actual command.
 
@@ -26,7 +26,11 @@ If you're not using steam, then you'll just replace %command% with your actual c
 Your compositor under wayland needs to support dynamic compositing to whichever is determined to be the primary/output/active GPU. See [this issue](https://invent.kde.org/plasma/kwin/-/issues/46) for kwin's implementation/progress. Otherwise you will need to close any programs that have touched the GPU since attaching it. Check output of the following command.
 ```shell
 fuser -v /dev/nvidia0
-```
+lsof | grep nvidia
+```  
+  
+If you're on hyprland make sure you set AQ_DRM_DEVICES to whichever gpu (symlink) is your main GPU.  
+This script is set to resolve dri card symlinks, it won't work if you don't have the necessary udev rules. `set-gpu-symlink-udev-rules.sh` will add the necessary rules for you assuming you have an amd/nvidia setup, otherwise you will need to modify the script to match whatever you have.
 
 # Slow Application Loading
 Certain applications by default will try to use the nvidia gpu first prior to whichever is the mesa GPU. You'll need to set some specific overrides to get those to work correctly in either an env var startup script, or /etc/environment
@@ -58,7 +62,6 @@ export DRI_PRIME=pci-0000_06_00_0
 ```
 
 # GPU Swapping from vfio to nvidia
-Recommend using [supergfxctl](https://gitlab.com/asus-linux/supergfxctl) as it's just a much better implementation and has guis for kde and gnome.
 Run swapgpu from TTY for best results!
 ## Install
 ```shell
